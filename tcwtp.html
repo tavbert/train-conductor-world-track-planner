@@ -2940,10 +2940,6 @@
 		<img id="NE" class="counttile" src="./images/NE.png">
 		<span id="countNE" class="countText">0</span>
 	</div>
-	<div id="NW_Row" class="countrow">
-		<img id="NW" class="counttile" src="./images/NW.png">
-		<span id="countNW" class="countText">0</span>
-	</div>
 	<div id="SE_Row" class="countrow">
 		<img id="SE" class="counttile" src="./images/SE.png">
 		<span id="countSE" class="countText">0</span>
@@ -2951,6 +2947,10 @@
 	<div id="SW_Row" class="countrow">
 		<img id="SW" class="counttile" src="./images/SW.png">
 		<span id="countSW" class="countText">0</span>
+	</div>
+	<div id="NW_Row" class="countrow">
+		<img id="NW" class="counttile" src="./images/NW.png">
+		<span id="countNW" class="countText">0</span>
 	</div>
 	<div id="UL_Row" class="countrow">
 		<img id="UL" class="counttile" src="./images/UL.png">
@@ -3011,15 +3011,15 @@
 		<img id="UD" src="./images/UD.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="LR" src="./images/LR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="NE" src="./images/NE.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
-		<img id="NW" src="./images/NW.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="SE" src="./images/SE.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="SW" src="./images/SW.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
+		<img id="NW" src="./images/NW.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
+		<img id="UL" src="./images/UL.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
+		<img id="UR" src="./images/UR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="DL" src="./images/DL.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="DR" src="./images/DR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="LU" src="./images/LU.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="LD" src="./images/LD.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
-		<img id="UL" src="./images/UL.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
-		<img id="UR" src="./images/UR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="RU" src="./images/RU.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="RD" src="./images/RD.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="LRU" src="./images/LRU.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
@@ -3172,8 +3172,22 @@
         let src = document.getElementById("LR").src;
         placeTile(currentCell, src, "LR", existing);
       }
-	  
-	  
+	  if (e.key === "3") {
+        let src = document.getElementById("NE").src;
+        placeTile(currentCell, src, "NE", existing);
+      }
+      if (e.key === "4") {
+        let src = document.getElementById("SE").src;
+        placeTile(currentCell, src, "SE", existing);
+      }
+	  if (e.key === "5") {
+        let src = document.getElementById("SW").src;
+        placeTile(currentCell, src, "SW", existing);
+      }
+      if (e.key === "6") {
+        let src = document.getElementById("NW").src;
+        placeTile(currentCell, src, "NW", existing);
+      }
 	  /*
 	  
 	  if (e.key === "a") {
