@@ -2960,22 +2960,6 @@
 		<img id="UR" class="counttile" src="./images/UR.png">
 		<span id="countUR" class="countText">0</span>
 	</div>
-	<div id="DL_Row" class="countrow">
-		<img id="DL" class="counttile" src="./images/DL.png">
-		<span id="countDL" class="countText">0</span>
-	</div>
-	<div id="DR_Row" class="countrow">
-		<img id="DR" class="counttile" src="./images/DR.png">
-		<span id="countDR" class="countText">0</span>
-	</div>
-	<div id="LU_Row" class="countrow">
-		<img id="LU" class="counttile" src="./images/LU.png">
-		<span id="countLU" class="countText">0</span>
-	</div>
-	<div id="LD_Row" class="countrow">
-		<img id="LD" class="counttile" src="./images/LD.png">
-		<span id="countLD" class="countText">0</span>
-	</div>
 	<div id="RU_Row" class="countrow">
 		<img id="RU" class="counttile" src="./images/RU.png">
 		<span id="countRU" class="countText">0</span>
@@ -2984,9 +2968,29 @@
 		<img id="RD" class="counttile" src="./images/RD.png">
 		<span id="countRD" class="countText">0</span>
 	</div>
+	<div id="DR_Row" class="countrow">
+		<img id="DR" class="counttile" src="./images/DR.png">
+		<span id="countDR" class="countText">0</span>
+	</div>
+	<div id="DL_Row" class="countrow">
+		<img id="DL" class="counttile" src="./images/DL.png">
+		<span id="countDL" class="countText">0</span>
+	</div>
+	<div id="LD_Row" class="countrow">
+		<img id="LD" class="counttile" src="./images/LD.png">
+		<span id="countLD" class="countText">0</span>
+	</div>
+	<div id="LU_Row" class="countrow">
+		<img id="LU" class="counttile" src="./images/LU.png">
+		<span id="countLU" class="countText">0</span>
+	</div>
 	<div id="LRU_Row" class="countrow">
 		<img id="LRU" class="counttile" src="./images/LRU.png">
 		<span id="countLRU" class="countText">0</span>
+	</div>
+	<div id="UDR_row" class="countrow">
+		<img id="UDR" class="counttile" src="./images/UDR.png">
+		<span id="countUDR" class="countText">0</span>
 	</div>
 	<div id="LRD_Row" class="countrow">
 		<img id="LRD" class="counttile" src="./images/LRD.png">
@@ -2995,10 +2999,6 @@
 	<div id="UDL_Row" class="countrow">
 		<img id="UDL" class="counttile" src="./images/UDL.png">
 		<span id="countUDL" class="countText">0</span>
-	</div>
-	<div id="UDR_row" class="countrow">
-		<img id="UDR" class="counttile" src="./images/UDR.png">
-		<span id="countUDR" class="countText">0</span>
 	</div>
 	<div class="countrow">Total: <span id="countTOT" class="countText">0</span>
 	</div>
@@ -3016,16 +3016,16 @@
 		<img id="NW" src="./images/NW.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="UL" src="./images/UL.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="UR" src="./images/UR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
-		<img id="DL" src="./images/DL.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
-		<img id="DR" src="./images/DR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
-		<img id="LU" src="./images/LU.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
-		<img id="LD" src="./images/LD.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="RU" src="./images/RU.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="RD" src="./images/RD.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
+		<img id="DR" src="./images/DR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
+		<img id="DL" src="./images/DL.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
+		<img id="LD" src="./images/LD.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
+		<img id="LU" src="./images/LU.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="LRU" src="./images/LRU.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
+		<img id="UDR" src="./images/UDR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="LRD" src="./images/LRD.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 		<img id="UDL" src="./images/UDL.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
-		<img id="UDR" src="./images/UDR.png" class="tile tilechoice" draggable="true" ondragstart="drag(event)">
 	</div>
 		</td>
 	</tr>
@@ -3172,6 +3172,7 @@
         let src = document.getElementById("LR").src;
         placeTile(currentCell, src, "LR", existing);
       }
+	  
 	  if (e.key === "3") {
         let src = document.getElementById("NE").src;
         placeTile(currentCell, src, "NE", existing);
@@ -3188,6 +3189,57 @@
         let src = document.getElementById("NW").src;
         placeTile(currentCell, src, "NW", existing);
       }
+	  
+	  if (e.key === "7") {
+        let src = document.getElementById("LRU").src;
+        placeTile(currentCell, src, "LRU", existing);
+      }
+      if (e.key === "8") {
+        let src = document.getElementById("UDR").src;
+        placeTile(currentCell, src, "UDR", existing);
+      }
+      if (e.key === "9") {
+        let src = document.getElementById("LRD").src;
+        placeTile(currentCell, src, "LRD", existing);
+      }
+      if (e.key === "0") {
+        let src = document.getElementById("UDL").src;
+        placeTile(currentCell, src, "UDL", existing);
+      }
+	  if (e.key === "q") {
+        let src = document.getElementById("UL").src;
+        placeTile(currentCell, src, "UL", existing);
+      }
+      if (e.key === "w") {
+        let src = document.getElementById("UR").src;
+        placeTile(currentCell, src, "UR", existing);
+      }
+	  if (e.key === "e") {
+        let src = document.getElementById("RU").src;
+        placeTile(currentCell, src, "RU", existing);
+      }
+      if (e.key === "r") {
+        let src = document.getElementById("RD").src;
+        placeTile(currentCell, src, "RD", existing);
+      }
+	  if (e.key === "t") {
+        let src = document.getElementById("DR").src;
+        placeTile(currentCell, src, "DR", existing);
+      }
+      if (e.key === "y") {
+        let src = document.getElementById("DL").src;
+        placeTile(currentCell, src, "DL", existing);
+      }
+	  if (e.key === "u") {
+        let src = document.getElementById("LD").src;
+        placeTile(currentCell, src, "LD", existing);
+      }
+      if (e.key === "i") {
+        let src = document.getElementById("LU").src;
+        placeTile(currentCell, src, "LU", existing);
+      }
+
+	
 	  /*
 	  
 	  if (e.key === "a") {
