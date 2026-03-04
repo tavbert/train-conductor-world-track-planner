@@ -16,7 +16,7 @@
     .water { background-color: #3d5d71; }
     .darkwater { background-color: #334a5a; }
     .swamp { background-color: #354526; }
-    .cloud { background-color: #aab; }
+    .cloud { background-color: rgb(229, 229, 237); }
     .desert { background-color: rgb(151, 116, 73); }
     .deepdesert { background-color: rgb(195, 149, 50); }
 
@@ -55,6 +55,7 @@
     #cappadocia { background-color: #966126; }
     #meteora { background-color: blue; }
     #damascus { background-color: #0c410f; }
+    #trondheim { background-color: #2e0849; }
 
     .tile { width: 16px; height: 16px; border: 1px solid #666; cursor: grab; }
 
@@ -73,7 +74,7 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(61, 16px);
-      grid-template-rows: repeat(56, 16px);
+      grid-template-rows: repeat(66, 16px);
       gap: 1px;
       justify-content: center;
       margin-bottom: 20px;
@@ -174,11 +175,20 @@
 </table>
 
 <script>
-// Grid terrain data (61 cols x 56 rows) - encoded: w=water, W=darkwater, g=grass, G=darkgrass, f=forest, F=fallforest, m=mountain, M=tallmountain, s=swamp, c=cloud
+// Grid terrain data (61 cols x 56 rows) - encoded: w=water, W=darkwater, g=grass, G=darkgrass, f=forest, 
+// F=fallforest, m=mountain, M=tallmountain, s=swamp, c=cloud
 const GRID_DATA = [
-
-
-  "WWWWWwwMMMmmGwwwwwwwwwwwwwwwwwwwwFFFffwWWWccccccccccccccccccc",
+  "cccccccccccccccccccccwwcwwwfmfffmcccccccccccccccccccccccccccc",
+  "ccccccccccccccccccccwcwwwFFFmmmFFcmcccccccccccccccccccccccccc",
+  "ccccccccccccwcwcwwcwwwwwmMmmmmFFmmcFccccccccccccccccccccccccc", // Trond
+  "ccccccccccwwwwwwwcwwwwWMMMmmmmFmFFmcFFwcccccccccccccccccccccc",
+  "cccccccccWWwwwcwcccwwwgmMMmmmFFFFFFFffwcccccccccccccccccccccc",
+  "ccccccccWwwwwwwwwcwwwWgMMmmmmFFFFFcFfwcwccccccccccccccccccccc",
+  "cccccccWcwwwwwwwwwwwwWmMMmmmfFFFFFFFfwwwccccccccccccccccccccc",
+  "ccWWWcWcwcfwwwwwwwwwwwmMmmmfgwFFfffffwwwwcccccccccccccccccccc",
+  "cWWWWWwcmffwwwwwwwwwwwwmmmffwwffFffffwwwwcccccccccccccccccccc",
+  "cWWWWwwwMcmFFwwwwwwwwwwwmmmwwwgGwFFwFfwwwWccccccccccccccccccc",
+  "WWWWWwwmMMmmgwwwwwwwwwwwwwwwwwgwwFFFffwwwwccccccccccccccccccc", // Goth
   "WWWWwwwwmMMFGwwwwwwwwwwwwwwwwwGGGGFGwwwWWWccccccccccccccccccc",
   "WWWwwwwmfmmwwwwwwwwwwwwwwwwGwwwGGwfGwGwWWWccccccccccccccccccc",
   "wwwwwwwfmffwwwwwwwwwwwwwwwwGwwwGfGGGwGwWWcccccccccccccccccccc",
@@ -238,41 +248,42 @@ const GRID_DATA = [
 
 // Cities: { id: { x, y, label, nodrop } }
 const CITIES = {
-  gothenburg: { x: 31, y: 1, label: "Go", nodrop: true },
-  edinburgh: { x: 12, y: 4, label: "Ed", nodrop: true },
-  belfast: { x: 5, y: 6, label: "Bf", nodrop: true },
-  copenhagen: { x: 31, y: 6, label: "Cp", nodrop: true },
-  grimsby: { x: 13, y: 9, label: "Gr", nodrop: true },
-  hamburg: { x: 27, y: 10, label: "Ha", nodrop: true },
-  amsterdam: { x: 22, y: 11, label: "Am", nodrop: true },
-  london: { x: 14, y: 13, label: "Ld", nodrop: true },
-  berlin: { x: 32, y: 13, label: "Be", nodrop: true },
-  rotterdam: { x: 21, y: 14, label: "Ro", nodrop: true },
-  bruges: { x: 18, y: 16, label: "Br", nodrop: true },
-  cologne: { x: 25, y: 16, label: "Co", nodrop: true },
-  warsaw: { x: 44, y: 16, label: "Wa", nodrop: true },
-  mons: { x: 21, y: 18, label: "Mo", nodrop: true },
-  bastei: { x: 35, y: 20, label: "Ba", nodrop: true },
-  paris: { x: 16, y: 22, label: "Pa", nodrop: true },
-  stuttgart: { x: 28, y: 22, label: "St", nodrop: true },
-  prague: { x: 38, y: 22, label: "Pr", nodrop: true },
-  dijon: { x: 20, y: 26, label: "Di", nodrop: true },
-  budapest: { x: 42, y: 27, label: "Bd", nodrop: true },
-  matterhorn: { x: 27, y: 30, label: "Mt", nodrop: true },
-  lyon: { x: 21, y: 31, label: "Ly", nodrop: true },
-  bernina: { x: 31, y: 32, label: "Bn", nodrop: true },
-  bucharest: { x: 48, y: 33, label: "Bc", nodrop: true },
-  millau: { x: 16, y: 34, label: "Mi", nodrop: true },
-  verdon: { x: 23, y: 37, label: "Ve", nodrop: true },
-  mostar: { x: 41, y: 37, label: "Ms", nodrop: true },
-  florence: { x: 30, y: 38, label: "Fl", nodrop: true },
-  marseille: { x: 20, y: 39, label: "Ma", nodrop: true },
-  porto: { x: 1, y: 41, label: "Po", nodrop: true },
-  madrid: { x: 7, y: 43, label: "Md", nodrop: true },
-  rome: { x: 33, y: 43, label: "Rm", nodrop: true },
-  cappadocia: { x: 57, y: 45, label: "Ca", nodrop: true },
-  meteora: { x: 46, y: 46, label: "Me", nodrop: true },
-  damascus: { x: 60, y: 55, label: "Ds", nodrop: true }
+  trondheim: { x: 27, y: 3, label: "Tr", nodrop: true },
+  gothenburg: { x: 31, y: 11, label: "Go", nodrop: true },
+  edinburgh: { x: 12, y: 14, label: "Ed", nodrop: true },
+  belfast: { x: 5, y: 16, label: "Bf", nodrop: true },
+  copenhagen: { x: 31, y: 16, label: "Cp", nodrop: true },
+  grimsby: { x: 13, y: 19, label: "Gr", nodrop: true },
+  hamburg: { x: 27, y: 20, label: "Ha", nodrop: true },
+  amsterdam: { x: 22, y: 21, label: "Am", nodrop: true },
+  london: { x: 14, y: 23, label: "Ld", nodrop: true },
+  berlin: { x: 32, y: 23, label: "Be", nodrop: true },
+  rotterdam: { x: 21, y: 24, label: "Ro", nodrop: true },
+  bruges: { x: 18, y: 26, label: "Br", nodrop: true },
+  cologne: { x: 25, y: 26, label: "Co", nodrop: true },
+  warsaw: { x: 44, y: 26, label: "Wa", nodrop: true },
+  mons: { x: 21, y: 28, label: "Mo", nodrop: true },
+  bastei: { x: 35, y: 30, label: "Ba", nodrop: true },
+  paris: { x: 16, y: 32, label: "Pa", nodrop: true },
+  stuttgart: { x: 28, y: 32, label: "St", nodrop: true },
+  prague: { x: 38, y: 32, label: "Pr", nodrop: true },
+  dijon: { x: 20, y: 36, label: "Di", nodrop: true },
+  budapest: { x: 42, y: 37, label: "Bd", nodrop: true },
+  matterhorn: { x: 27, y: 40, label: "Mt", nodrop: true },
+  lyon: { x: 21, y: 41, label: "Ly", nodrop: true },
+  bernina: { x: 31, y: 42, label: "Bn", nodrop: true },
+  bucharest: { x: 48, y: 43, label: "Bc", nodrop: true },
+  millau: { x: 16, y: 44, label: "Mi", nodrop: true },
+  verdon: { x: 23, y: 47, label: "Ve", nodrop: true },
+  mostar: { x: 41, y: 47, label: "Ms", nodrop: true },
+  florence: { x: 30, y: 48, label: "Fl", nodrop: true },
+  marseille: { x: 20, y: 49, label: "Ma", nodrop: true },
+  porto: { x: 1, y: 51, label: "Po", nodrop: true },
+  madrid: { x: 7, y: 53, label: "Md", nodrop: true },
+  rome: { x: 33, y: 53, label: "Rm", nodrop: true },
+  cappadocia: { x: 57, y: 55, label: "Ca", nodrop: true },
+  meteora: { x: 46, y: 56, label: "Me", nodrop: true },
+  damascus: { x: 60, y: 65, label: "Ds", nodrop: true }
 };
 
 const TERRAIN_MAP = {
@@ -281,7 +292,7 @@ const TERRAIN_MAP = {
   s: "swamp", c: "cloud", "-": "cloud", d: "desert", D: "deepdesert"
 };
 
-const COLS = 61, ROWS = 56;
+const COLS = 61, ROWS = 66;
 let currentCell = null;
 
 // Build city lookup by position
@@ -440,7 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // City highlight groups
 const highlightGroups = {
   grimsby: ["london","edinburgh","belfast","amsterdam","bruges","paris","mons","cologne","copenhagen"],
-  hamburg: ["amsterdam","copenhagen","berlin","cologne","gothenburg","mons","bruges","london","bastei"],
+  hamburg: ["amsterdam","copenhagen","berlin","cologne","gothenburg","mons","bruges","london","trondheim"],
   rotterdam: ["amsterdam","mons","bruges","cologne","london","berlin","paris","copenhagen"],
   stuttgart: ["cologne","bastei","matterhorn","prague","mons","paris","berlin","bernina"],
   dijon: ["lyon","paris","mons","matterhorn","bruges","millau","verdon","cologne"],
