@@ -76,8 +76,6 @@
       grid-template-columns: repeat(61, 16px);
       grid-template-rows: repeat(66, 16px);
       gap: 1px;
-      justify-content: center;
-      margin-bottom: 20px;
     }
 
     .counttile { width: 16px; height: 16px; border: 1px solid #666; }
@@ -99,7 +97,10 @@
 
     .side-list { padding: 10px; display: flex; flex-direction: column; gap: 12px; }
     .countrow { display: flex; align-items: center; gap: 10px; }
-    .main-picture { padding: 10px; align-items: center; justify-content: center; background: #fafafa; }
+    .main-picture { padding: 10px; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; position: relative; }
+    .grid-viewport { overflow: hidden; width: 100%; height: calc(100vh - 20px); position: relative; cursor: grab; }
+    .grid-viewport.panning { cursor: grabbing; }
+    .grid-viewport .grid { transform-origin: 0 0; }
     .bottom-buttons { display: flex; justify-content: center; gap: 10px; }
     table { width: 100%; border-collapse: collapse; border: 0; }
     .tilechoice { background: #ccc; }
@@ -118,7 +119,9 @@
     </td>
     <td rowspan="2">
       <div class="main-picture">
-        <div class="grid" id="grid"></div>
+        <div class="grid-viewport" id="viewport">
+          <div class="grid" id="grid"></div>
+        </div>
       </div>
     </td>
   </tr>
@@ -295,6 +298,128 @@ const TERRAIN_MAP = {
 const COLS = 61, ROWS = 66;
 let currentCell = null;
 
+// Terrain texture generation
+const TERRAIN_COLORS = {
+  grass:        { base: [102, 152, 86],  noise: 18, detail: "speckle" },
+  darkgrass:    { base: [92, 141, 93],   noise: 14, detail: "speckle" },
+  forest:       { base: [111, 114, 35],  noise: 12, detail: "trees" },
+  fallforest:   { base: [134, 118, 19],  noise: 14, detail: "trees" },
+  mountain:     { base: [131, 133, 121], noise: 22, detail: "rocky" },
+  tallmountain: { base: [107, 118, 122], noise: 20, detail: "rocky" },
+  water:        { base: [61, 93, 113],   noise: 10, detail: "waves" },
+  darkwater:    { base: [51, 74, 90],    noise: 8,  detail: "waves" },
+  swamp:        { base: [53, 69, 38],    noise: 12, detail: "swamp" },
+  cloud:        { base: [229, 229, 237], noise: 5,  detail: "wispy" },
+  desert:       { base: [151, 116, 73],  noise: 14, detail: "sand" },
+  deepdesert:   { base: [195, 149, 50],  noise: 16, detail: "sand" }
+};
+
+function seededRandom(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
+}
+
+function generateTerrainTile(terrain, seed) {
+  const config = TERRAIN_COLORS[terrain];
+  if (!config) return null;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 16;
+  canvas.height = 16;
+  const ctx = canvas.getContext("2d");
+  const rng = seededRandom(seed);
+  const [br, bg, bb] = config.base;
+  const n = config.noise;
+
+  const imageData = ctx.createImageData(16, 16);
+  const d = imageData.data;
+
+  // Base noise fill
+  for (let i = 0; i < 256; i++) {
+    const idx = i * 4;
+    const nr = (rng() - 0.5) * n * 2;
+    const ng = (rng() - 0.5) * n * 2;
+    const nb = (rng() - 0.5) * n * 2;
+    d[idx]     = Math.max(0, Math.min(255, br + nr));
+    d[idx + 1] = Math.max(0, Math.min(255, bg + ng));
+    d[idx + 2] = Math.max(0, Math.min(255, bb + nb));
+    d[idx + 3] = 255;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  // Detail overlays
+  if (config.detail === "trees") {
+    const count = 2 + Math.floor(rng() * 3);
+    for (let t = 0; t < count; t++) {
+      const tx = 2 + Math.floor(rng() * 12);
+      const ty = 2 + Math.floor(rng() * 12);
+      const r = 1.5 + rng() * 1.5;
+      ctx.beginPath();
+      ctx.arc(tx, ty, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${br * 0.6 | 0}, ${bg * 0.6 | 0}, ${bb * 0.6 | 0}, 0.5)`;
+      ctx.fill();
+      // Highlight dot
+      ctx.beginPath();
+      ctx.arc(tx - 0.5, ty - 0.5, 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${Math.min(255, br + 40)}, ${Math.min(255, bg + 40)}, ${Math.min(255, bb + 20)}, 0.4)`;
+      ctx.fill();
+    }
+  } else if (config.detail === "rocky") {
+    const count = 3 + Math.floor(rng() * 3);
+    for (let t = 0; t < count; t++) {
+      const rx = Math.floor(rng() * 14);
+      const ry = Math.floor(rng() * 14);
+      const bright = rng() > 0.5;
+      ctx.fillStyle = bright
+        ? `rgba(255, 255, 255, ${0.1 + rng() * 0.15})`
+        : `rgba(0, 0, 0, ${0.1 + rng() * 0.15})`;
+      ctx.fillRect(rx, ry, 1 + Math.floor(rng() * 2), 1 + Math.floor(rng() * 2));
+    }
+  } else if (config.detail === "waves") {
+    for (let wy = 0; wy < 16; wy += 3 + Math.floor(rng() * 3)) {
+      ctx.beginPath();
+      ctx.moveTo(0, wy);
+      for (let wx = 0; wx <= 16; wx += 4) {
+        ctx.quadraticCurveTo(wx + 2, wy + (rng() - 0.5) * 2.5, wx + 4, wy);
+      }
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.08 + rng() * 0.1})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+  } else if (config.detail === "sand") {
+    const dots = 8 + Math.floor(rng() * 10);
+    for (let t = 0; t < dots; t++) {
+      const sx = Math.floor(rng() * 16);
+      const sy = Math.floor(rng() * 16);
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.05 + rng() * 0.1})`;
+      ctx.fillRect(sx, sy, 1, 1);
+    }
+  } else if (config.detail === "swamp") {
+    const count = 2 + Math.floor(rng() * 3);
+    for (let t = 0; t < count; t++) {
+      const sx = 2 + Math.floor(rng() * 12);
+      const sy = 2 + Math.floor(rng() * 12);
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1 + rng(), 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(20, 30, 10, ${0.2 + rng() * 0.2})`;
+      ctx.fill();
+    }
+  } else if (config.detail === "wispy") {
+    ctx.fillStyle = `rgba(200, 200, 215, ${0.1 + rng() * 0.1})`;
+    const cx = 4 + Math.floor(rng() * 8);
+    const cy = 4 + Math.floor(rng() * 8);
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 3 + rng() * 3, 1.5 + rng() * 2, rng() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  return canvas.toDataURL();
+}
+
 // Build city lookup by position
 const cityByPos = {};
 for (const [id, data] of Object.entries(CITIES)) {
@@ -304,16 +429,28 @@ for (const [id, data] of Object.entries(CITIES)) {
 // Generate grid
 function generateGrid() {
   const grid = document.getElementById("grid");
+  // Pre-generate terrain texture cache (keyed by terrain+seed for reuse)
+  const textureCache = {};
+
   for (let y = 1; y <= ROWS; y++) {
     const rowData = GRID_DATA[y - 1];
     for (let x = 1; x <= COLS; x++) {
       const cell = document.createElement("div");
       const posKey = `${x}_${y}`;
       const city = cityByPos[posKey];
+      const terrain = TERRAIN_MAP[rowData[x - 1]] || "water";
+
+      // Generate unique terrain texture for this cell
+      const seed = x * 7919 + y * 104729;
+      const cacheKey = terrain + "_" + (seed % 97); // 97 variants per terrain
+      if (!textureCache[cacheKey]) {
+        textureCache[cacheKey] = generateTerrainTile(terrain, seed);
+      }
+      const tex = textureCache[cacheKey];
 
       if (city) {
         cell.id = city.id;
-        cell.className = city.nodrop ? "cell nodrop" : "cell " + TERRAIN_MAP[rowData[x - 1]];
+        cell.className = city.nodrop ? "cell nodrop" : "cell " + terrain;
         cell.textContent = city.label;
         if (!city.nodrop) {
           cell.ondrop = drop;
@@ -321,7 +458,6 @@ function generateGrid() {
         }
       } else {
         cell.id = `cell_${x}_${y}`;
-        const terrain = TERRAIN_MAP[rowData[x - 1]] || "water";
         if (terrain === "cloud") {
           cell.className = "cell cloud nodrop";
         } else {
@@ -330,6 +466,13 @@ function generateGrid() {
           cell.ondragover = allowDrop;
         }
       }
+
+      // Apply terrain texture as background image (skip cities - they use CSS background-color)
+      if (tex && !city) {
+        cell.style.backgroundImage = `url(${tex})`;
+        cell.style.backgroundSize = "16px 16px";
+      }
+
       grid.appendChild(cell);
     }
   }
@@ -486,6 +629,67 @@ document.addEventListener("DOMContentLoaded", () => {
         tie?.forEach(id => document.getElementById(id)?.classList.remove("highlightTie"));
       }
     });
+  });
+});
+
+// Zoom & Pan
+let zoom = 1, panX = 0, panY = 0;
+let isPanning = false, panStartX = 0, panStartY = 0, panStartPanX = 0, panStartPanY = 0;
+const MIN_ZOOM = 0.3, MAX_ZOOM = 4;
+
+function applyTransform() {
+  const grid = document.getElementById("grid");
+  grid.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const viewport = document.getElementById("viewport");
+
+  // Zoom with mouse wheel
+  viewport.addEventListener("wheel", e => {
+    e.preventDefault();
+    const rect = viewport.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const oldZoom = zoom;
+    const zoomFactor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+    zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom * zoomFactor));
+
+    // Adjust pan so zoom centers on cursor position
+    panX = mouseX - (mouseX - panX) * (zoom / oldZoom);
+    panY = mouseY - (mouseY - panY) * (zoom / oldZoom);
+    applyTransform();
+  }, { passive: false });
+
+  // Pan with click-drag on empty cells
+  viewport.addEventListener("mousedown", e => {
+    // Only pan if clicking on an empty cell (no track tile) or on the grid background
+    const cell = e.target.closest(".cell");
+    if (cell && cell.dataset.tileId) return; // has a track, don't pan
+    if (e.target.tagName === "IMG") return; // clicking on a tile image, don't pan
+
+    isPanning = true;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+    panStartPanX = panX;
+    panStartPanY = panY;
+    viewport.classList.add("panning");
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", e => {
+    if (!isPanning) return;
+    panX = panStartPanX + (e.clientX - panStartX);
+    panY = panStartPanY + (e.clientY - panStartY);
+    applyTransform();
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (isPanning) {
+      isPanning = false;
+      document.getElementById("viewport").classList.remove("panning");
+    }
   });
 });
 
